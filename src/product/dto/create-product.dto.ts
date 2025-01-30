@@ -1,20 +1,33 @@
-import { IsString, IsNumber, IsNotEmpty } from 'class-validator'
+import {
+    IsEnum,
+    IsNotEmpty,
+    IsNumber,
+    IsString,
+    Min,
+    IsArray,
+    IsOptional,
+} from 'class-validator'
+import { Category } from '../product.schema'
 
 export class CreateProductDto {
-    @IsString()
     @IsNotEmpty()
+    @IsString()
     name: string
 
     @IsString()
-    description: string
+    @IsOptional()
+    description?: string
+
+    @IsEnum(Category)
+    category: Category
+
+    @IsArray()
+    images: string[]
 
     @IsNumber()
-    @IsNotEmpty()
+    @Min(0)
     price: number
 
-    @IsString()
-    category: string
-
-    @IsString()
-    imageUrl: string
+    @IsArray()
+    quantity: { size: string; stock: number }[]
 }

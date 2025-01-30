@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common'
+import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common'
 import { ProductService } from './product.service'
 import { CreateProductDto } from './dto/create-product.dto'
 
@@ -14,6 +14,16 @@ export class ProductController {
     @Get()
     findAll() {
         return this.productService.findAll()
+    }
+
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.productService.findOne(id)
+    }
+
+    @Get('last')
+    findLast(@Query('limit') limit: number = 12) {
+        return this.productService.findLast(limit)
     }
 
     @Get('category')

@@ -16,18 +16,18 @@ export class ProductController {
         return this.productService.findAll()
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.productService.findOne(id)
-    }
-
     @Get('last')
     findLast(@Query('limit') limit: number = 12) {
         return this.productService.findLast(limit)
     }
 
-    @Get('category')
-    findByCategory(@Query('category') category: string) {
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.productService.findOne(id)
+    }
+
+    @Get('category/:category')
+    findByCategory(@Param('category') category: string) {
         return this.productService.findByCategory(category)
     }
 }

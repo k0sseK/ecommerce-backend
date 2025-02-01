@@ -17,6 +17,9 @@ export class ProductQuantity {
 
     @Prop({ required: true, min: 0 })
     stock: number
+
+    @Prop({ unique: true })
+    sku: string
 }
 
 export const ProductQuantitySchema =
@@ -44,3 +47,15 @@ export class Product {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product)
+
+ProductSchema.pre<Product>('save', function (next) {
+    this.quantity = this.quantity.map((item) => {
+        return {
+            ...item,
+            sku:
+                item.sku ||
+                `${this.name.replace(/\s+/g, '-').toUpperCase()}-${item.size}`,
+        }
+    })
+    next()
+})

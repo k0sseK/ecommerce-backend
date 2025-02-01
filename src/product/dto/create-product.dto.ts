@@ -29,5 +29,5 @@ export class CreateProductDto {
     price: number
 
     @IsArray()
-    quantity: { size: string; stock: number }[]
+    quantity: { size: string; stock: number; sku?: string }[]
 }

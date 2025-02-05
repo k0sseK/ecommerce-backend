@@ -31,4 +31,29 @@ export class StripeService {
             throw error
         }
     }
+
+    async createCheckoutSession(order) {
+        const session = await this.stripe.checkout.sessions.create({
+            payment_method_types: ['card', 'blik'],
+            mode: 'payment',
+            success_url: `https://twoja-domena.com/order-success?orderId=${order._id}`,
+            cancel_url: `https://twoja-domena.com/order-cancel`,
+            line_items: order.items.map((product) => ({
+                price_data: {
+                    currency: 'pln',
+                    product_data: {
+                        name: product.name,
+                    },
+                    unit_amount: product.price * 100,
+                },
+                quantity: product.quantity,
+            })),
+            customer_email: order.contactEmail,
+            metadata: {
+                orderId: order._id.toString(),
+            },
+        })
+
+        return session
+    }
 }

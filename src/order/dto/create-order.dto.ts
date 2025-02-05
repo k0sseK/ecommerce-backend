@@ -1,61 +1,49 @@
 import {
-    IsNotEmpty,
     IsEmail,
-    IsString,
-    IsIn,
+    IsEnum,
     IsOptional,
-    IsArray,
-    ValidateNested,
+    IsString,
     IsNumber,
     Min,
 } from 'class-validator'
+import { PaymentMethod, ShippingMethod } from '../order.schema'
 
 export class CreateOrderDto {
+    @IsString()
+    cartId: string
+
     @IsEmail()
-    @IsNotEmpty()
     contactEmail: string
 
     @IsString()
-    @IsNotEmpty()
     firstName: string
 
     @IsString()
-    @IsNotEmpty()
     lastName: string
 
     @IsString()
-    @IsNotEmpty()
     address: string
 
     @IsString()
-    @IsNotEmpty()
     postalCode: string
 
     @IsString()
-    @IsNotEmpty()
     city: string
 
     @IsString()
-    @IsNotEmpty()
     phone: string
 
-    @IsIn(['inpost_courier', 'inpost_parcel_locker'])
-    @IsNotEmpty()
-    shippingMethod: string
+    @IsEnum(ShippingMethod)
+    shippingMethod: ShippingMethod
 
     @IsOptional()
     @IsString()
     parcelLocker?: string
 
-    @IsIn(['blik', 'bank_transfer', 'paypal'])
-    @IsNotEmpty()
-    paymentMethod: string
-
-    @IsArray()
-    @ValidateNested({ each: true })
-    products: { productId: string; quantity: number }[]
+    @IsEnum(PaymentMethod)
+    paymentMethod: PaymentMethod
 
     @IsNumber()
     @Min(0)
-    totalPrice: number
+    shippingPrice: number
 }

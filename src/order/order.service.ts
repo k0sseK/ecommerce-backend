@@ -5,33 +5,48 @@ import { Order, OrderDocument } from './order.schema'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 
-import { MailerService } from '@nestjs-modules/mailer'
+import { CartService } from '../cart/cart.service'
 import { StripeService } from '../payment/stripe/stripe.service'
+import { MailerService } from '@nestjs-modules/mailer'
 
 @Injectable()
 export class OrderService {
     constructor(
         @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
-        private mailerService: MailerService,
-        private stripeService: StripeService
+        private cartService: CartService,
+        private stripeService: StripeService,
+        private mailerService: MailerService
     ) {}
 
     async create(
         createOrderDto: CreateOrderDto
-    ): Promise<{ order: OrderDocument; paymentIntent: any }> {
-        const createdOrder = new this.orderModel(createOrderDto)
+    ): Promise<{ order: OrderDocument; sessionId: string }> {
+        const cart = await this.cartService.getCart(createOrderDto.cartId)
+        if (!cart || cart.items.length === 0) {
+            throw new NotFoundException("Cart is empty or doesn't exists.")
+        }
+
+        const itemsPrice = cart.items.reduce(
+            (total, item) => total + item.price * item.quantity,
+            0
+        )
+        const totalPrice = itemsPrice + createOrderDto.shippingPrice
+
+        const createdOrder = new this.orderModel({
+            ...createOrderDto,
+            items: cart.items,
+            itemsPrice,
+            totalPrice,
+        })
         const savedOrder = await createdOrder.save()
 
-        const amountInGrosze = savedOrder.totalPrice * 100
-        const paymentIntent = await this.stripeService.createPaymentIntent(
-            amountInGrosze,
-            'pln'
-        )
+        const checkoutSession =
+            await this.stripeService.createCheckoutSession(savedOrder)
 
-        await this.sendConfirmationEmail(savedOrder)
-        await this.sendNotificationEmail(savedOrder)
+        // await this.sendConfirmationEmail(savedOrder);
+        // await this.sendNotificationEmail(savedOrder);
 
-        return { order: savedOrder, paymentIntent }
+        return { order: savedOrder, sessionId: checkoutSession.id }
     }
 
     async findAll(): Promise<OrderDocument[]> {
@@ -86,7 +101,7 @@ export class OrderService {
     private async sendNotificationEmail(order: OrderDocument) {
         try {
             await this.mailerService.sendMail({
-                to: 'firmowy_email@example.com', // zastąp swoim firmowym emailem
+                to: 'kontakt@hustwear.pl',
                 subject: 'Nowe zamówienie',
                 text: `Nowe zamówienie złożone. Numer zamówienia: ${order._id}`,
                 html: `<p>Nowe zamówienie złożone. Numer zamówienia: <strong>${order._id}</strong></p>`,

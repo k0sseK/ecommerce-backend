@@ -37,6 +37,9 @@ export class Cart extends Document {
     @Prop({ type: [CartItemSchema], default: [] })
     items: CartItem[]
 
+    @Prop({ required: true, default: 0 })
+    itemsPrice: number
+
     @Prop({
         type: Date,
         default: () =>
@@ -49,3 +52,11 @@ export class Cart extends Document {
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart)
+
+CartSchema.pre<Cart>('save', function (next) {
+    this.itemsPrice = this.items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    )
+    next()
+})

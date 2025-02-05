@@ -15,23 +15,6 @@ export class StripeService {
         )
     }
 
-    async createPaymentIntent(
-        amount: number,
-        currency: string = 'pln'
-    ): Promise<Stripe.PaymentIntent> {
-        try {
-            const paymentIntent = await this.stripe.paymentIntents.create({
-                amount,
-                currency,
-                payment_method_types: ['card', 'blik'],
-            })
-            return paymentIntent
-        } catch (error) {
-            this.logger.error('Error creating PaymentIntent', error)
-            throw error
-        }
-    }
-
     async createCheckoutSession(order) {
         const session = await this.stripe.checkout.sessions.create({
             payment_method_types: ['card', 'blik'],

@@ -46,4 +46,10 @@ export class CreateOrderDto {
     @IsNumber()
     @Min(0)
     shippingPrice: number
+
+    @IsString()
+    successUrl: string
+
+    @IsString()
+    cancelUrl: string
 }

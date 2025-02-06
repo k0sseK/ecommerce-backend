@@ -15,12 +15,14 @@ export class StripeService {
         )
     }
 
-    async createCheckoutSession(order) {
+    async createCheckoutSession(order, successUrl: string, cancelUrl: string) {
         const session = await this.stripe.checkout.sessions.create({
-            payment_method_types: ['card', 'blik'],
+            payment_method_types: ['card', 'p24', 'blik'],
             mode: 'payment',
-            success_url: `https://twoja-domena.com/order-success?orderId=${order._id}`,
-            cancel_url: `https://twoja-domena.com/order-cancel`,
+            success_url:
+                successUrl ||
+                `https://hustwear.pl/order-success?orderId=${order._id}`,
+            cancel_url: cancelUrl || `https://hustwear.pl/order-cancel`,
             line_items: order.items.map((product) => ({
                 price_data: {
                     currency: 'pln',

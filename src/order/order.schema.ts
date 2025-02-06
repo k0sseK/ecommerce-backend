@@ -12,6 +12,7 @@ export enum OrderStatus {
 }
 
 export enum PaymentMethod {
+    STRIPE = 'stripe',
     BLIK = 'blik',
     BANK_TRANSFER = 'bank_transfer',
     PAYPAL = 'paypal',

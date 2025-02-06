@@ -40,8 +40,11 @@ export class OrderService {
         })
         const savedOrder = await createdOrder.save()
 
-        const checkoutSession =
-            await this.stripeService.createCheckoutSession(savedOrder)
+        const checkoutSession = await this.stripeService.createCheckoutSession(
+            savedOrder,
+            createOrderDto.successUrl,
+            createOrderDto.cancelUrl
+        )
 
         // await this.sendConfirmationEmail(savedOrder);
         // await this.sendNotificationEmail(savedOrder);
